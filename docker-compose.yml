@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  hecker_app:
+    build: ./app
+    command: gunicorn hecker.wsgi:application --bind 0.0.0.0:8000
+    working_dir: /usr/src/app/
+    volumes:
+      - ./app:/usr/src/app
+      - static_volume:/home/app/web/static
+    expose:
+      - 8000
+    env_file: 
+      ./.env
+    depends_on:
+      - hecker_db
+  
+  hecker_web:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/static
+    ports:
+      - 80:80
+    depends_on:
+      - hecker_app
+
+  hecker_db:
+    image: postgres:12-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=hecker
+
+volumes:
+  postgres_data:
+  static_volume:
