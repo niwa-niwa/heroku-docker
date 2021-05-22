@@ -25,7 +25,7 @@ SECRET_KEY = '971c#nw_wg75i%_v!53c%!+@#@nft4jwc-cz&a-ce%*tx@6p-('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["hecker-app.herokuapp.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -89,6 +89,10 @@ DATABASES = {
         'PORT': os.environ.get("SQL_PORT"),
     }
 }
+# for heroku
+import dj_database_url
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -127,3 +131,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/staticfiles/'
+
+DEBUG = False
+
+try:
+    from config.local_settings import *
+except ImportError:
+    pass
+
+if not DEBUG:
+    import django_heroku
+    django_heroku.settings(locals())
